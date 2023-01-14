@@ -416,20 +416,20 @@ class AniRotationEngine(AbstractService):
         return answer
 
     def rotate_ani(self, ani_pool: list, profile_name, client, on_demand=False):
-        profile = client.get_campaign_profile(profile_name)
-        inbound_campaigns = [
-            c['name'] for c in client.get_inbound_campaigns() if c['profileName'] == profile['name']]
-        profile_config = {
-            "ANI": ani_pool[1]['ani'] if not on_demand else ani_pool[0]['ani'],
-            "description": profile['description'],
-            "dialingSchedule": profile['dialingSchedule'],
-            "dialingTimeout": profile['dialingTimeout'],
-            "initialCallPriority": profile['initialCallPriority'],
-            "maxCharges": profile['maxCharges'],
-            "name": profile['name'],
-            "numberOfAttempts": profile['numberOfAttempts'],
-        }
         try:
+            profile = client.get_campaign_profile(profile_name)
+            inbound_campaigns = [
+                c['name'] for c in client.get_inbound_campaigns() if c['profileName'] == profile['name']]
+            profile_config = {
+                "ANI": ani_pool[1]['ani'] if not on_demand else ani_pool[0]['ani'],
+                "description": profile['description'],
+                "dialingSchedule": profile['dialingSchedule'],
+                "dialingTimeout": profile['dialingTimeout'],
+                "initialCallPriority": profile['initialCallPriority'],
+                "maxCharges": profile['maxCharges'],
+                "name": profile['name'],
+                "numberOfAttempts": profile['numberOfAttempts'],
+            }
             client.update_campaign_profile(profile_config)
             for campaign in inbound_campaigns:
                 current_dnis_list = client.get_campaign_dnis_list(campaign)
@@ -438,13 +438,13 @@ class AniRotationEngine(AbstractService):
                         campaign, current_dnis_list)
                 client.update_dnis_list(
                     campaign, [ani_pool[1]['ani']] if not on_demand else [ani_pool[0]['ani']])
+            if not on_demand:
+                deactivated_ani = ani_pool.pop(0)
+                deactivated_ani['active'] = False
+                ani_pool.append(deactivated_ani)
+                ani_pool[0]['active'] = True
         except Exception as e:
             pass
-        if not on_demand:
-            deactivated_ani = ani_pool.pop(0)
-            deactivated_ani['active'] = False
-            ani_pool.append(deactivated_ani)
-            ani_pool[0]['active'] = True
         return ani_pool
 
     def send_new_request(self, config, reason):
