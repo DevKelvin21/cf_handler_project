@@ -142,6 +142,9 @@ class Five9Custom(Five9):
         )
         return literal_eval(str(response))
 
+    def get_campaign_dnis_list(self, campaign_name):
+        return self.configuration.getCampaignDNISList(campaignName=campaign_name)
+
     def update_dnis_list(self, campaign_name: str, dnis_list: list):
         return self.configuration.addDNISToCampaign(
             campaignName=campaign_name,
