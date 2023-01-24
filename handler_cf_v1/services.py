@@ -820,6 +820,7 @@ class GHLPipelineSync(AbstractService):
             self.config['params']['apiKey'], self.config['params']['locationId'])
         emitter_app_instance = self.app(
             self.config['params']['emitterApiKey'], self.data['location']['id'])
+        emitter_app_instance.location_api_key = self.config['params']['emitterApiKey']
         query = f"phone=+1{self.data['phone']}&email={self.data['email']}"
         contact = app_instance.contact_lookup(query)
         if contact is None:
